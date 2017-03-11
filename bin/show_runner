@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+require 'rufus-scheduler'
+require 'json'
+
+CRON_DAYS_OF_WEEK = %w{sunday monday tuesday wednesday thursday friday saturday}
+
+def read_show_details
+  File.read('./show_details.jsonl').split("\n").map{ |l| JSON.load l }
+rescue Errno::ENOENT
+  []
+end
+
+def convert_to_cron day_of_week, time_24h
+  hour, minute = time_24h.split(':')
+  dow = CRON_DAYS_OF_WEEK.index day_of_week
+  "#{minute} #{hour} * * #{dow}"
+end
+
+scheduler = Rufus::Scheduler.new
+
+read_show_details.each do |details|
+  cron_string = convert_to_cron details['day_of_week'], details['start_time']
+  puts "scheduling: #{details}"
+  puts "as #{cron_string}"
+  scheduler.cron cron_string do
+    puts "turning on channel #{details['channel']} for #{details['length']}"
+    Kernel.system 'turn_on_channel', details['channel'], details['length']
+  end
+end
+
+
+scheduler.join
