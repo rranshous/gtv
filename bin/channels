@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+TV_HOST=${TV_HOST:-127.0.0.1}
+OUTPUT="TITLE"
+
+# we have to loop b/c the tv software has a bug where it some times
+# does not return the Location header w/ the 302 response
+while [[ $OUTPUT == *"TITLE"* ]]; do
+  OUTPUT=$(curl -s -L http://tv:tv@$TV_HOST:9981/playlist | cut -d',' -f2 | grep -v '#' | grep -v http)
+  ((c++)) && ((c==10)) && exit 1
+done
+echo "$OUTPUT"

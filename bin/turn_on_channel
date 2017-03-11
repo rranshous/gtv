@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# to turn on channel we need to see if there is another channel already
+# running. if there is we are going to stop the play
+# once it's stopped we are going to start our channels play
+
+CHANNEL_NAME=$1
