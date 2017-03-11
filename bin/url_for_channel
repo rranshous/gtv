@@ -9,7 +9,7 @@ CHANNEL_NAME=$1
 # we have to loop b/c the tv software has a bug where it some times
 # does not return the Location header w/ the 302 response
 while [[ $OUTPUT == *"TITLE"* ]]; do
-  OUTPUT=$(curl -s -L http://tv:tv@$TV_HOST:9981/playlist/channels | cut -d',' -f2 | grep -v '#' | grep -A 1 -i "$CHANNEL_NAME" | tail -n 1)
+  OUTPUT=$(curl -s -L http://tv:tv@$TV_HOST:9981/playlist/channels | cut -d',' -f2 | grep -v '#' | grep -A 1 -i "^$CHANNEL_NAME$" | tail -n 1)
   ((c++)) && ((c==64)) && exit 1
 done
 echo "$OUTPUT"
