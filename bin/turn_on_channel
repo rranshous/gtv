@@ -25,5 +25,5 @@ echo "found url: $CHANNEL_URL"
 
 # start our video
 echo "starting $VIDEO_PLAYER to play stream $CHANNEL_URL"
-time timeout --foreground -k 10s -s KILL "${PLAY_TIME}m" "$VIDEO_PLAYER" $VIDEO_PLAYER_OPTIONS "$CHANNEL_URL"
+time timeout --foreground -k 10s -s TERM "${PLAY_TIME}m" "$VIDEO_PLAYER" $VIDEO_PLAYER_OPTIONS "$CHANNEL_URL"
 echo "player appears to have stopped"
