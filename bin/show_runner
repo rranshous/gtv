@@ -3,6 +3,8 @@
 require 'rufus-scheduler'
 require 'json'
 
+puts "starting show runner"
+
 CRON_DAYS_OF_WEEK = %w{sunday monday tuesday wednesday thursday friday saturday}
 
 def read_show_details
@@ -19,6 +21,8 @@ end
 
 scheduler = Rufus::Scheduler.new
 
+puts "reading schedule and registering shows"
+
 read_show_details.each do |details|
   cron_string = convert_to_cron details['day_of_week'], details['start_time']
   puts "scheduling: #{details}"
@@ -29,5 +33,5 @@ read_show_details.each do |details|
   end
 end
 
-
+puts "waiting and watching"
 scheduler.join
