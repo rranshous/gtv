@@ -1,7 +1,23 @@
 #!/usr/bin/env bash
 
-# to turn on channel we need to see if there is another channel already
-# running. if there is we are going to stop the play
-# once it's stopped we are going to start our channels play
+VIDEO_PLAYER=${VIDEO_PLAYER:-omxplayer}
 
+echo "Starting turn_on_channel"
+
+# grab the channel name we are going to tune to from the input
 CHANNEL_NAME=$1
+
+echo "channel: $CHANNEL_NAME"
+
+# kill off any other video's which are playing
+echo "stopping other players ($VIDEO_PLAYER)"
+(killall $VIDEO_PLAYER && echo "killed player") || echo "no players"
+
+# get the url for the channel
+echo "getting channel url"
+CHANNEL_URL=$(url_for_channel "$CHANNEL_NAME")
+echo "found url: $CHANNEL_URL"
+
+# start our video
+echo "starting $VIDEO_PLAYER to play stream $CHANNEL_URL"
+$VIDEO_PLAYER "$CHANNEL_URL"
