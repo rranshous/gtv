@@ -1,0 +1,20 @@
+
+
+# pull down the channel list
+# pick the last channel
+# grab it's stream URL
+# open the stream URL w/ omxplayer
+
+omxplayer --live $(curl -v -s -L http://tv:tv@127.0.0.1:9981/playlist | cut -d',' -f2 | grep -v '#' | tail -n 1)
+
+
+We can use the infoshower project as the image slideshow always on part
+when you start omxplayer the video is "above" the images on the display
+such that you only see the video while it is playing but when it
+is complete you are back to the images
+
+
+# TODO: setup some sort of warmup script so that when the machine starts
+#	it can page through all the channels "warming them up"
+# 	it seems that channels can some times fail a few times before
+#	attempts to access them succeed
