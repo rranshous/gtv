@@ -1,8 +1,55 @@
 
+<h2>Show Schedule</h2>
 
 <form method="POST" action="/update_schedule">
+<% @show_details.each do |sd| %>
+  <% i = sd.to_a.join.gsub('_','') %>
+  <label>Day: <select name="<%= i %>_day_of_week">
+    <% @possible_days_of_week.each do |dow| %>
+    <option
+      <% if sd['day_of_week'] == dow %>
+        selected="selected"
+      <% end %>
+      value="<%= dow %>"><%= dow.capitalize %></option>
+    <% end %>
+  </select> </label>
+  <label>Channel: <select name="<%= i %>_channel">
+    <% @channels.each do |channel| %>
+    <option
+      <% if sd['channel'] == channel %>
+        selected="selected"
+      <% end %>
+    value="<%= channel %>"><%= channel %></option>
+    <% end %>
+  </select> </label>
+  <label>Start Time: <select name="<%= i %>_start_time">
+    <% @possible_start_times.each do |start_time| %>
+    <option
+      <% if sd['start_time'] == start_time %>
+        selected="selected"
+      <% end %>
+    value="<%= start_time %>"><%= start_time %></option>
+    <% end %>
+  </select> </label>
+  <label>Length: <select name="<%= i %>_length">
+    <% @possible_lengths.each do |length| %>
+    <option
+      <% if sd['length'] == length %>
+        selected="selected"
+      <% end %>
+    value="<%= length %>"><%= length %> minutes</option>
+    <% end %>
+  </select> </label>
+  <hr/>
+<% end %>
 
 <% 3.times do |i| %>
+  <label>Day: <select name="<%= i %>_day_of_week">
+    <option selected="selected" value="NOTHING"></option>
+    <% @possible_days_of_week.each do |dow| %>
+    <option value="<%= dow %>"><%= dow.capitalize %></option>
+    <% end %>
+  </select> </label>
   <label>Channel: <select name="<%= i %>_channel">
     <option selected="selected" value="NOTHING"></option>
     <% @channels.each do |channel| %>
@@ -26,3 +73,7 @@
 
   <button type="submit" value="submit">Submit</button>
 </form>
+
+<!--
+Raw show data [<%= @show_details.length %>]: <%= @show_details %>
+-->

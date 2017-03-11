@@ -4,30 +4,56 @@ require 'sinatra'
 require 'json'
 require 'pry'
 
+DAYS_OF_WEEK = %w{monday tuesday wednesday thursday friday saturday sunday}
+
 helpers do
   def show_details_from_params
-    params
-      .group_by{ |k,v| k.split('_').first }
-      .map{ |_, fields| Hash[fields.map{ |n, v| [ n.split('_',2).last, v ] } ] }
+    sort_details(
+      params
+        .group_by{ |k,v| k.split('_').first }
+        .map{ |_, fields| Hash[fields.map{ |n, v| [ n.split('_',2).last, v ] } ] }
+        .reject{ |d| d.values.include? "NOTHING" }
+    )
+  end
+
+  def sort_details details
+    details
       .sort_by{ |d| d['start_time'] }
       .sort_by{ |d| d['channel'] }
+      .sort_by{ |d| DAYS_OF_WEEK.index d['day_of_week'] }
+  end
+
+  def write_show_details details
+    File.open('./show_details.jsonl', 'w') do |fh|
+      details.each do |d|
+        fh.write("#{d.to_json}\n")
+      end
+    end
+  end
+
+  def read_show_details
+    File.read('./show_details.jsonl').split("\n").map{ |l| JSON.load l }
+  rescue Errno::ENOENT
+    []
   end
 end
 
 get '/' do
+  @show_details = read_show_details
   @channels = `channels`.split("\n").map(&:chomp).sort
+  @possible_days_of_week = DAYS_OF_WEEK
   @possible_start_times = 0.upto(23).flat_map do |h|
     h = h.to_s.rjust(2,'0')
     ["#{h}:00", "#{h}:30"]
   end
-  @possible_lengths = [30, 60, 75, 120]
+  @possible_lengths = [30, 60, 75, 120].map(&:to_s)
   erb :"index.html"
 end
 
 post '/update_schedule' do
-
   content_type :text
+  write_show_details show_details_from_params
   show_details_from_params
-    .map{ |d| "watch #{d['channel']} @ #{d['start_time']} for #{d['length']}m" }
+    .map{ |d| "on #{d['day_of_week']} watch #{d['channel']} @ #{d['start_time']} for #{d['length']}m" }
     .join("\n")
 end
