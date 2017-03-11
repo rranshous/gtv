@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+require 'sinatra'
+require 'json'
+require 'pry'
+
+helpers do
+  def show_details_from_params
+    params
+      .group_by{ |k,v| k.split('_').first }
+      .map{ |_, fields| Hash[fields.map{ |n, v| [ n.split('_',2).last, v ] } ] }
+      .sort_by{ |d| d['start_time'] }
+      .sort_by{ |d| d['channel'] }
+  end
+end
+
+get '/' do
+  @channels = `channels`.split("\n").map(&:chomp).sort
+  @possible_start_times = 0.upto(23).flat_map do |h|
+    h = h.to_s.rjust(2,'0')
+    ["#{h}:00", "#{h}:30"]
+  end
+  @possible_lengths = [30, 60, 75, 120]
+  erb :"index.html"
+end
+
+post '/update_schedule' do
+
+  content_type :text
+  show_details_from_params
+    .map{ |d| "watch #{d['channel']} @ #{d['start_time']} for #{d['length']}m" }
+    .join("\n")
+end

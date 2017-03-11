@@ -1,0 +1,28 @@
+
+
+<form method="POST" action="/update_schedule">
+
+<% 3.times do |i| %>
+  <label>Channel: <select name="<%= i %>_channel">
+    <option selected="selected" value="NOTHING"></option>
+    <% @channels.each do |channel| %>
+    <option value="<%= channel %>"><%= channel %></option>
+    <% end %>
+  </select> </label>
+  <label>Start Time: <select name="<%= i %>_start_time">
+    <option selected="selected" value="NOTHING"></option>
+    <% @possible_start_times.each do |start_time| %>
+    <option value="<%= start_time %>"><%= start_time %></option>
+    <% end %>
+  </select> </label>
+  <label>Length: <select name="<%= i %>_length">
+    <option selected="selected" value="NOTHING"></option>
+    <% @possible_lengths.each do |length| %>
+    <option value="<%= length %>"><%= length %> minutes</option>
+    <% end %>
+  </select> </label>
+  <hr/>
+<% end %>
+
+  <button type="submit" value="submit">Submit</button>
+</form>

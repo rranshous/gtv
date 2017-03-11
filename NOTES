@@ -1,4 +1,6 @@
 
+USB tuner: http://www.hauppauge.com/site/products/data_hvr955q.html
+Using tvheadend as the video capture backend, provides HTTP API
 
 # pull down the channel list
 # pick the last channel
