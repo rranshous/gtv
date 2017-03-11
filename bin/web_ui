@@ -7,6 +7,7 @@ DAYS_OF_WEEK = %w{monday tuesday wednesday thursday friday saturday sunday}
 
 set :port, 80
 set :lock, true
+set :bind, '0.0.0.0'
 
 helpers do
   def show_details_from_params
