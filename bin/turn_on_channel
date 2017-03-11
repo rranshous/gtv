@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 VIDEO_PLAYER=${VIDEO_PLAYER:-omxplayer}
+VIDEO_PLAYER_OPTIONS=${VIDEO_PLAYER_OPTIONS:-}
 
 echo "Starting turn_on_channel"
 
@@ -24,5 +25,5 @@ echo "found url: $CHANNEL_URL"
 
 # start our video
 echo "starting $VIDEO_PLAYER to play stream $CHANNEL_URL"
-time timeout --foreground --preserve-status -k 10s "${PLAY_TIME}m" "$VIDEO_PLAYER" "$CHANNEL_URL"
-echo "player stopped"
+time timeout --foreground -k 10s -s KILL "${PLAY_TIME}m" "$VIDEO_PLAYER" $VIDEO_PLAYER_OPTIONS "$CHANNEL_URL"
+echo "player appears to have stopped"
