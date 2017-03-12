@@ -7,9 +7,6 @@ echo "Starting turn_on_channel"
 
 # grab the channel name we are going to tune to from the input
 CHANNEL_NAME=$1
-# how long do we show the channel?
-PLAY_TIME=$2
-PLAY_TIME=${PLAY_TIME:-30}
 
 echo "channel: $CHANNEL_NAME"
 echo "play time: $PLAY_TIME minutes"
@@ -25,5 +22,4 @@ echo "found url: $CHANNEL_URL"
 
 # start our video
 echo "starting $VIDEO_PLAYER to play stream $CHANNEL_URL"
-time timeout --foreground -k 10s -s TERM "${PLAY_TIME}m" "$VIDEO_PLAYER" $VIDEO_PLAYER_OPTIONS "$CHANNEL_URL"
-echo "player appears to have stopped"
+exec "$VIDEO_PLAYER" $VIDEO_PLAYER_OPTIONS "$CHANNEL_URL"

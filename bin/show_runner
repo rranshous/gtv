@@ -19,17 +19,46 @@ def convert_to_cron day_of_week, time_24h
   "#{minute} #{hour} * * #{dow}"
 end
 
+def turn_on_channel channel
+  Kernel.spawn 'turn_on_channel', channel
+end
+
+def turn_off_channel pid
+  puts "SIGINT :: #{pid}"
+  Process.kill "SIGINT", pid
+  #Thread.new do
+  #  sleep(10)
+  #  puts "9 :: #{pid}"
+  #  Process.kill 9, pid
+  #end
+  Process.wait pid
+  puts "done waiting on channel to die"
+end
+
 scheduler = Rufus::Scheduler.new
 
 puts "reading schedule and registering shows"
 
 read_show_details.each do |details|
-  cron_string = convert_to_cron details['day_of_week'], details['start_time']
+  cron_string = convert_to_cron details['day_of_week'],
+                                details['start_time']
   puts "scheduling: #{details}"
   puts "as #{cron_string}"
   scheduler.cron cron_string do
-    puts "turning on channel #{details['channel']} for #{details['length']}"
-    Kernel.system 'turn_on_channel', details['channel'], details['length']
+
+    puts "turning on channel #{details['channel']} for " +
+         "#{details['length']}"
+    running_channel = turn_on_channel details['channel']
+
+    puts "scheduling turn off chanel"
+    scheduler.in "#{details['length']}m" do
+
+      puts "turning off channel #{details['channel']}, it has " +
+           "been #{details['length']} minutes"
+      turn_off_channel running_channel
+
+      puts "channel turned off"
+    end
   end
 end
 
