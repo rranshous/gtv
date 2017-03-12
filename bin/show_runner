@@ -30,7 +30,13 @@ def turn_off_channel pid
     begin
       puts "killing proc: #{kill_pid}"
       Process.kill "SIGINT", kill_pid
-      Process.wait pid
+    rescue Errno::ECHILD
+    end
+  end
+  to_kill.each do |kill_pid|
+    begin
+      puts "waiting on #{kill_pid}"
+      Process.wait kill_pid
     rescue Errno::ECHILD
     end
   end
@@ -38,7 +44,7 @@ def turn_off_channel pid
 end
 
 def child_pids pid
-  `pgrep -P #{pid}`.split("\n")
+  `pgrep -P #{pid}`.split("\n").map(&:to_i)
 end
 
 scheduler = Rufus::Scheduler.new
