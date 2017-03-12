@@ -25,14 +25,20 @@ end
 
 def turn_off_channel pid
   puts "SIGINT :: #{pid}"
-  Process.kill "SIGINT", pid
-  #Thread.new do
-  #  sleep(10)
-  #  puts "9 :: #{pid}"
-  #  Process.kill 9, pid
-  #end
-  Process.wait pid
+  to_kill = [pid] + child_pids(pid)
+  to_kill.each do |kill_pid|
+    begin
+      puts "killing proc: #{kill_pid}"
+      Process.kill "SIGINT", kill_pid
+      Process.wait pid
+    rescue Errno::ECHILD
+    end
+  end
   puts "done waiting on channel to die"
+end
+
+def child_pids pid
+  `pgrep -P #{pid}`.split("\n")
 end
 
 scheduler = Rufus::Scheduler.new
@@ -50,7 +56,7 @@ read_show_details.each do |details|
          "#{details['length']}"
     running_channel = turn_on_channel details['channel']
 
-    puts "scheduling turn off chanel"
+    puts "scheduling turn off channel"
     scheduler.in "#{details['length']}m" do
 
       puts "turning off channel #{details['channel']}, it has " +
