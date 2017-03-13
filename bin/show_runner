@@ -1,7 +1,17 @@
 #!/usr/bin/env ruby
 
+require 'tzinfo/data'
+ENV['TZ'] = 'America/New_York'
 require 'rufus-scheduler'
 require 'json'
+
+STDOUT.sync = true
+STDERR.sync = true
+
+rebuild_scheduler = false
+Signal.trap("HUP") do
+  rebuild_scheduler = true
+end
 
 puts "starting show runner"
 
@@ -47,32 +57,55 @@ def child_pids pid
   `pgrep -P #{pid}`.split("\n").map(&:to_i)
 end
 
-scheduler = Rufus::Scheduler.new
+def rebuild_scheduler!
+  new_scheduler = Rufus::Scheduler.new
+  old_scheduler = Thread.main[:scheduler]
+  old_scheduler.shutdown
+  Thread.main[:scheduler] = new_scheduler
+  load_up_jobs new_scheduler
+end
 
-puts "reading schedule and registering shows"
+def load_up_jobs scheduler
+  read_show_details.each do |details|
+    cron_string = convert_to_cron details['day_of_week'],
+                                  details['start_time']
+    puts "scheduling: #{details}"
+    puts "as #{cron_string}"
+    scheduler.cron cron_string do
 
-read_show_details.each do |details|
-  cron_string = convert_to_cron details['day_of_week'],
-                                details['start_time']
-  puts "scheduling: #{details}"
-  puts "as #{cron_string}"
-  scheduler.cron cron_string do
+      puts "turning on channel #{details['channel']} for " +
+           "#{details['length']}"
+      running_channel = turn_on_channel details['channel']
 
-    puts "turning on channel #{details['channel']} for " +
-         "#{details['length']}"
-    running_channel = turn_on_channel details['channel']
+      puts "scheduling turn off channel"
+      scheduler.in "#{details['length']}m" do
 
-    puts "scheduling turn off channel"
-    scheduler.in "#{details['length']}m" do
+        puts "turning off channel #{details['channel']}, it has " +
+             "been #{details['length']} minutes"
+        turn_off_channel running_channel
 
-      puts "turning off channel #{details['channel']}, it has " +
-           "been #{details['length']} minutes"
-      turn_off_channel running_channel
-
-      puts "channel turned off"
+        puts "channel turned off"
+      end
     end
   end
 end
 
+Thread.main[:scheduler] = Rufus::Scheduler.new
+
+puts "reading schedule and registering shows"
+load_up_jobs Thread.main[:scheduler]
+
+
 puts "waiting and watching"
-scheduler.join
+loop do
+  if rebuild_scheduler
+    puts "rebuilding scheduler"
+    rebuild_scheduler!
+    rebuild_scheduler = false
+  elsif !Thread.main[:scheduler].up?
+    puts "scheduler has stopped"
+    break
+  end
+  sleep 1
+end
+puts "exited"
