@@ -29,13 +29,24 @@ helpers do
   def write_show_details details
     File.open('./show_details.jsonl', 'w') do |fh|
       details.each do |d|
-        fh.write("#{d.to_json}\n")
+        fh.write d.to_json
       end
     end
   end
 
+  def add_show time, channel, length
+    show = { day_of_week: time.strftime('%A').downcase,
+             start_time: time.strftime('%H:%M'),
+             channel: channel,
+             length: length }
+    puts "adding show: #{show}"
+    File.open('./show_details.jsonl', 'a') do |fh|
+      fh.write("\n#{show.to_json}")
+    end
+  end
+
   def read_show_details
-    File.read('./show_details.jsonl').split("\n").map{ |l| JSON.load l }
+    File.read('./show_details.jsonl').split("\n").map{ |l| JSON.load l }.compact
   rescue Errno::ENOENT
     []
   end
@@ -63,4 +74,9 @@ post '/update_schedule' do
   show_details_from_params
     .map{ |d| "on #{d['day_of_week']} watch #{d['channel']} @ #{d['start_time']} for #{d['length']}m" }
     .join("\n")
+end
+
+post '/play_channel' do
+  add_show Time.now + 60, params['channel'], params['length'].to_i
+  "done"
 end

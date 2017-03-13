@@ -6,4 +6,4 @@ export PATH="$PATH:$DIR"
 CMD=$1
 shift
 
-$CMD "$@"
+exec $CMD "$@"

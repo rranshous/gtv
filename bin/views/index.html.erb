@@ -5,6 +5,7 @@
 <% @show_details.each do |sd| %>
   <% i = sd.to_a.join.gsub('_','') %>
   <label>Day: <select name="<%= i %>_day_of_week">
+    <option value="NOTHING"></option>
     <% @possible_days_of_week.each do |dow| %>
     <option
       <% if sd['day_of_week'] == dow %>
@@ -14,6 +15,7 @@
     <% end %>
   </select> </label>
   <label>Channel: <select name="<%= i %>_channel">
+    <option value="NOTHING"></option>
     <% @channels.each do |channel| %>
     <option
       <% if sd['channel'] == channel %>
@@ -23,6 +25,7 @@
     <% end %>
   </select> </label>
   <label>Start Time: <select name="<%= i %>_start_time">
+    <option value="NOTHING"></option>
     <% @possible_start_times.each do |start_time| %>
     <option
       <% if sd['start_time'] == start_time %>
@@ -32,6 +35,7 @@
     <% end %>
   </select> </label>
   <label>Length: <select name="<%= i %>_length">
+    <option value="NOTHING"></option>
     <% @possible_lengths.each do |length| %>
     <option
       <% if sd['length'] == length %>
@@ -73,6 +77,21 @@
 
   <button type="submit" value="submit">Submit</button>
 </form>
+
+<hr/>
+
+<form method="POST" action="/play_channel">
+  <p>Play channel for 1 min</p>
+  <label>Channel: <select name="channel">
+    <option selected="selected" value="NOTHING"></option>
+    <% @channels.each do |channel| %>
+    <option value="<%= channel %>"><%= channel %></option>
+    <% end %>
+  </select> </label>
+  <input type="hidden" name="length" value="1"/>
+  <button type="submit" value="submit">Submit</button>
+</form>
+
 
 <!--
 Raw show data [<%= @show_details.length %>]: <%= @show_details %>

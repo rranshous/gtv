@@ -18,7 +18,7 @@ puts "starting show runner"
 CRON_DAYS_OF_WEEK = %w{sunday monday tuesday wednesday thursday friday saturday}
 
 def read_show_details
-  File.read('./show_details.jsonl').split("\n").map{ |l| JSON.load l }
+  File.read('./show_details.jsonl').split("\n").map(&:chomp).map{ |l| JSON.load l }.compact
 rescue Errno::ENOENT
   []
 end
