@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+while true; do
+  echo "waiting for change"
+  inotifywait -e close_write show_details.jsonl
+  echo "notified of write"
+  RUNNER_PID=$(pgrep -f -n show_runner)
+  echo "found pid: $RUNNER_PID, HUP'n"
+  kill -s HUP $RUNNER_PID
+  echo "done HUP"
+done
