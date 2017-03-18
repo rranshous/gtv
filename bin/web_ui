@@ -29,7 +29,7 @@ helpers do
   def write_show_details details
     File.open('./show_details.jsonl', 'w') do |fh|
       details.each do |d|
-        fh.write d.to_json
+        fh.puts d.to_json
       end
     end
   end
